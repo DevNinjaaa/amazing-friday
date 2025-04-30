@@ -1,0 +1,23 @@
+# CarShare 🚗
+
+A university car rental project built with ASP.NET Core and PostgreSQL using Entity Framework Core.
+
+## 📦 Requirements
+
+- [.NET SDK 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Visual Studio 2022 or newer
+- PostgreSQL
+
+## 🛠️ Tech Stack
+
+- ASP.NET Core (`net8.0`)
+- Entity Framework Core `8.0.4`
+- Npgsql `9.0.3`
+- Npgsql.EntityFrameworkCore.PostgreSQL `8.0.2`
+
+## 🔧 Setup Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/CarShare.git
+   cd CarShare
