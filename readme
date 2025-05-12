@@ -19,5 +19,5 @@ A university car rental project built with ASP.NET Core and PostgreSQL using Ent
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/CarShare.git
+   git clone https://github.com/eslamsamir/CarShare.git
    cd CarShare
