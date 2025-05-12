@@ -18,5 +18,6 @@ namespace CarShare.Repositories
         Task<bool> DeleteCarPost(int postId, int ownerId);
         Task<bool> UpdateCarPost(int postId, CarPostUpdateDTO updatedPost, int ownerId);
         Task<List<CarPost>> ListCarPost(int ownerId);
+        Task<List<string>> GetAllCarsLocations();
     }
 }

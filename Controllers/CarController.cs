@@ -16,9 +16,6 @@ namespace CarShare.Controllers
             _carRepository = carRepository;
         }
 
-        // ----------------------
-        // Car-related Endpoints
-        // ----------------------
 
         [HttpGet("owner/{ownerId}")]
         public async Task<ActionResult<List<Car>>> GetCarsByOwner(int ownerId)
@@ -26,8 +23,14 @@ namespace CarShare.Controllers
             var cars = await _carRepository.GetAllCarsByOwnerAsync(ownerId);
             return Ok(cars);
         }
+        [HttpGet("locations")]
+        public async Task<ActionResult<List<string>>> GetAvailableLocations()
+        {
+            var locations = await _carRepository.GetAllCarsLocations();
+            return Ok(locations);
 
-        [HttpGet("available")]
+        }
+        [HttpGet("available_cars")]
         public async Task<ActionResult<List<Car>>> GetAvailableCars(
             [FromQuery] string? carType,
             [FromQuery] decimal? minPrice,

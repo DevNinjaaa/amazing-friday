@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using CarShare.Hubs;
 
+
 public class Startup
 {
     public IConfiguration Configuration { get; }
@@ -53,7 +54,13 @@ public class Startup
             });
         });
 
-
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader());
+        });
 
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
@@ -92,6 +99,7 @@ public class Startup
     {
         if (env.IsDevelopment())
         {
+            app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
         }
@@ -103,5 +111,6 @@ public class Startup
 
         app.MapControllers();
         app.MapHub<NotificationHub>("/notificationhub");
+
     }
 }

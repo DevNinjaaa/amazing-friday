@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using CarShare.Data;
 using CarShare.Models;
 using CarShare.Models.DTOs;
@@ -57,14 +58,19 @@ namespace CarShare.Repository
 
         public async Task AddUserAsync(User user)
         {
-            // Ensure required fields are provided
             if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Email))
             {
                 throw new ArgumentException("Username and Email are required.");
             }
+            var email = await _context.Users.FindAsync(user.Email);
+            if (email == null)
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            {
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                return;
+            }
+            throw new ArgumentException("This Email is Already Used.");
         }
 
         public async Task UpdateUserAsync(User user)

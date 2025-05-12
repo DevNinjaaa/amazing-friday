@@ -37,7 +37,6 @@ namespace CarShare.Models
 
         public ICollection<CarPost>? CarPosts { get; set; }
         public ICollection<CarProposal>? Proposals { get; set; }
-        public ICollection<Feedback>? Feedbacks { get; set; }
         public ICollection<Car>? Car { get; set; }
 
     }

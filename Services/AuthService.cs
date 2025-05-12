@@ -46,7 +46,9 @@ namespace CarShare.Services
                 Email = registerRequest.Email,
                 PasswordHash = hashedPassword,
                 Role = UserRole.User,
-                CarOwnerApprovalStatus = null
+                CarOwnerApprovalStatus = null,
+                IsRenter = false
+
             };
 
             await _context.Users.AddAsync(user);

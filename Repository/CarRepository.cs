@@ -12,6 +12,12 @@ namespace CarShare.Repositories
         {
             _context = context;
         }
+        public async Task<List<string>> GetAllCarsLocations()
+        {
+            return await _context.Locations.Select(c => c.City)
+        .Distinct()
+        .ToListAsync();
+        }
 
         public async Task<List<Car>> GetAllCarsByOwnerAsync(int ownerId)
         {
@@ -22,22 +28,22 @@ namespace CarShare.Repositories
 
         public async Task<List<Car>> GetAvailableCarsAsync(string? carType, decimal? minPrice, decimal? maxPrice)
         {
-            var query = _context.CarPosts
-                                .Where(c => c.RentalStatus == RentalStatus.Available)
-                                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(carType))
-            {
-                query = query.Where(c => c.Car.CarType == carType);
-            }
-
-            decimal min = minPrice ?? 0;
-            decimal max = maxPrice ?? decimal.MaxValue;
-
-            query = query.Where(c => c.RentalPrice >= min && c.RentalPrice <= max);
-
-            return await query.Select(c => c.Car).ToListAsync();
+            return await _context.CarPosts
+                .Where(cp => cp.RentalStatus == RentalStatus.Available)
+                .Join(
+                    _context.Cars,
+                    post => post.CarId,
+                    car => car.CarId,
+                    (post, car) => car
+                )
+                .Where(car =>
+                    (string.IsNullOrEmpty(carType) || car.Category == carType) &&
+                    (!minPrice.HasValue || car.PricePerDay >= (double)minPrice.Value) &&
+                    (!maxPrice.HasValue || car.PricePerDay <= (double)maxPrice.Value)
+                )
+                .ToListAsync();
         }
+
 
         public void UpdateCar(int carId, CarUpdateDTO updateDTO)
         {
@@ -59,7 +65,7 @@ namespace CarShare.Repositories
 
             if (!string.IsNullOrEmpty(updateDTO.CarType))
             {
-                car.CarType = updateDTO.CarType;
+                car.Category = updateDTO.CarType;
             }
 
             if (updateDTO.Year.HasValue)
@@ -163,7 +169,6 @@ namespace CarShare.Repositories
                 return false;
             }
 
-            // Update only the fields that are provided
             if (!string.IsNullOrEmpty(updatedPost.Title))
                 post.Title = updatedPost.Title;
 
@@ -178,9 +183,6 @@ namespace CarShare.Repositories
 
             if (updatedPost.AvailableTo.HasValue)
                 post.AvailableTo = updatedPost.AvailableTo.Value;
-
-            if (updatedPost.RentalPrice.HasValue)
-                post.RentalPrice = updatedPost.RentalPrice.Value;
 
             await _context.SaveChangesAsync();
             return true;

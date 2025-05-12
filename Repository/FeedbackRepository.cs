@@ -18,11 +18,28 @@ namespace CarShare.Repository
             return await _context.Feedbacks
                                  .Where(f => f.CarId == carId)
                                  .ToListAsync();
+
         }
         public async Task AddFeedbackOnCarAsync(Feedback feedback)
         {
             _context.Feedbacks.Add(feedback);
             await _context.SaveChangesAsync();
+
+            var feedbacks = await _context.Feedbacks
+       .Where(f => f.CarId == feedback.CarId)
+       .ToListAsync();
+
+            var avgRating = feedbacks.Average(f => f.Rate);
+            var totalReviews = feedbacks.Count;
+
+            // Update car
+            var car = await _context.Cars.FindAsync(feedback.CarId);
+            if (car != null)
+            {
+                car.Rating = avgRating;
+                car.Reviews = totalReviews;
+                await _context.SaveChangesAsync();
+            }
         }
         public async Task UpdateFeedbackAsync(Feedback feedback)
         {

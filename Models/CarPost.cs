@@ -34,17 +34,14 @@ namespace CarShare.Models
 
         [Required]
         public RentalStatus RentalStatus { get; set; }
+        public decimal? RentalPrice { get; set; }
+
 
         [Required]
         public DateTime AvailableFrom { get; set; }
 
         [Required]
         public DateTime AvailableTo { get; set; }
-
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal RentalPrice { get; set; }
-
     }
 
 }

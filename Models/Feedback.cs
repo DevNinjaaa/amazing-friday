@@ -25,7 +25,7 @@ namespace CarShare.Models
 
         [Range(1, 5, ErrorMessage = "Error!! Rating must be between 1 and 5.")]
         [Required]
-        public int Rating { get; set; }
+        public int Rate { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

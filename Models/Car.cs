@@ -35,15 +35,23 @@ namespace CarShare.Models
         public bool IsRented { get; set; }
 
         [Required]
-        public required string CarType { get; set; }
+        public required string Category { get; set; }
         public DateTime AvailableAt { get; set; }
-
+        public string? ImageUrl { get; set; }
         public int Year { get; set; }
+        public double? Rating { get; set; }
+        public int Reviews { get; set; }
+        public required double PricePerDay { get; set; }
+        public string? Description { get; set; }
+        public string? LicensePlate { get; set; }
+        public int Seats { get; set; }
+        public string? FuelType { get; set; }
 
         [Required]
         public TransmissionType Transmission { get; set; }
-
+        public required int Doors { get; set; }
         public CarPost? CarPost { get; set; }
+        public ICollection<Feedback>? Feedbacks { get; set; }
     }
 
 
