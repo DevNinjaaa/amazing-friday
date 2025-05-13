@@ -42,6 +42,7 @@ namespace CarShare.Models
 
         [Required]
         public DateTime AvailableTo { get; set; }
+        public ApprovalStatus ApprovalStatus { get; set; }
     }
 
 }

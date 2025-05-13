@@ -85,7 +85,7 @@ namespace CarShare.Repositories
         public async Task<bool> AddCarAsync(Car car)
         {
             var user = await _context.Users.FindAsync(car.OwnerId);
-            if (user == null || !user.IsCarOwner)
+            if (user == null || !user.CarOwner)
                 return false;
 
             _context.Cars.Add(car);
@@ -119,7 +119,7 @@ namespace CarShare.Repositories
         public async Task<bool> CreateCarPostAsync(CarPost carPost)
         {
             var owner = await _context.Users.FindAsync(carPost.OwnerId);
-            if (owner == null || !owner.IsCarOwner)
+            if (owner == null || !owner.CarOwner)
                 return false;
 
             var car = await _context.Cars

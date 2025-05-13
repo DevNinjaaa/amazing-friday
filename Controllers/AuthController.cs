@@ -6,6 +6,7 @@ using System.Security.Claims;
 
 namespace CarShare.Services
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase

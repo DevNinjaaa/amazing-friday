@@ -28,12 +28,10 @@ namespace CarShare.Models
         public UserRole Role { get; set; } = UserRole.User;
 
         [Required]
-        public bool IsCarOwner { get; set; } = false;
+        public bool CarOwner { get; set; } = false;
 
         [Required]
-        public bool IsRenter { get; set; } = false;
-
-        public ApprovalStatus? CarOwnerApprovalStatus { get; set; }
+        public bool Renting { get; set; } = false;
 
         public ICollection<CarPost>? CarPosts { get; set; }
         public ICollection<CarProposal>? Proposals { get; set; }

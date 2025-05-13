@@ -46,8 +46,8 @@ namespace CarShare.Services
                 Email = registerRequest.Email,
                 PasswordHash = hashedPassword,
                 Role = UserRole.User,
-                CarOwnerApprovalStatus = null,
-                IsRenter = false
+                CarOwner = false,
+                Renting = false
 
             };
 
@@ -65,6 +65,7 @@ namespace CarShare.Services
         new Claim(JwtRegisteredClaimNames.Sub, user.Username),
         new Claim(ClaimTypes.Role, user.Role.ToString()),
         new Claim("UserId", user.UserId.ToString()),
+        new Claim("CarOwner", user.CarOwner.ToString()),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
 

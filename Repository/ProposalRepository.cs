@@ -42,7 +42,7 @@ namespace CarShare.Repository
                 return false;
 
             // Update rental status
-            user.IsRenter = true;
+            user.Renting = true;
             proposal.Car.IsRented = true;
 
             // Reject all other proposals for this car

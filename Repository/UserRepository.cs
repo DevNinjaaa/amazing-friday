@@ -17,13 +17,11 @@ namespace CarShare.Repository
 
         public async Task<User> AddAdminAsync(AdminDto adminDto)
         {
-            // Check if username or email already exists
             if (await _context.Users.AnyAsync(u => u.Username == adminDto.Username || u.Email == adminDto.Email))
             {
                 throw new Exception("Username or Email already exists.");
             }
 
-            // Hash password (use a secure password hashing mechanism like bcrypt)
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(adminDto.Password);
 
             // Create a new admin user
@@ -33,8 +31,8 @@ namespace CarShare.Repository
                 Email = adminDto.Email,
                 PasswordHash = passwordHash,
                 Role = UserRole.Admin,
-                IsCarOwner = false,
-                IsRenter = false
+                CarOwner = false,
+                Renting = false
             };
 
             _context.Users.Add(user);
@@ -54,23 +52,6 @@ namespace CarShare.Repository
         public async Task<User?> GetUserByGmailAsync(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        }
-
-        public async Task AddUserAsync(User user)
-        {
-            if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Email))
-            {
-                throw new ArgumentException("Username and Email are required.");
-            }
-            var email = await _context.Users.FindAsync(user.Email);
-            if (email == null)
-
-            {
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-                return;
-            }
-            throw new ArgumentException("This Email is Already Used.");
         }
 
         public async Task UpdateUserAsync(User user)

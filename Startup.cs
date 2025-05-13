@@ -66,7 +66,7 @@ public class Startup
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICarRepository, CarRepository>();
         services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-        services.AddScoped<ICarOwnershipRequest, CarOwnershipRequest>();
+        services.AddScoped<IUserRequest, UserRequest>();
         services.AddScoped<IProposalRepository, ProposalRepository>();
 
         // Services
