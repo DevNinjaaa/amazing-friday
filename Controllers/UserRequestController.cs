@@ -33,28 +33,28 @@ namespace CarShare.Controllers
         }
 
         // POST: api/Request
-        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Request>> AddRequest([FromBody] RequestDto requestDto)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized("No token found.");
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"Claim: {claim.Type} - {claim.Value}");
+            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var userIdClaim = User.FindFirst("userId") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                return Unauthorized("User ID not found or invalid.");
+            if (userId == null)
+            {
+                return Unauthorized(new { Message = "User not authenticated" });
+            }
 
-            if (requestDto.RequestedAt == default)
-                return BadRequest("Invalid or missing request date.");
 
             var request = new Request
             {
-                UserId = userId,
+                UserId = Int32.Parse(userId),
                 RequestType = requestDto.RequestType,
                 RequestedAt = requestDto.RequestedAt,
-                CarPostId = requestDto.RequestType == RequestType.CarPost ? requestDto.CarPostId : null,
+                CarPostId = requestDto.CarPostId == null ? null : requestDto.CarPostId,
                 ApprovalStatus = ApprovalStatus.Pending
             };
 
@@ -63,58 +63,43 @@ namespace CarShare.Controllers
             if (success)
                 return CreatedAtAction(nameof(AddRequest), new { id = request.RequestId }, request);
 
-            return BadRequest("Failed to submit ownership request.");
+            return BadRequest("Failed to submit request.");
         }
 
 
-
-        // PUT: api/OwnershipRequest/accept
-        [Authorize]
-        [HttpPut("accept")]
-        public async Task<IActionResult> AcceptRequest([FromBody] Request request)
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateRequestStatus(int id, [FromBody] RequestStatusUpdateDto dto)
         {
-            if (request == null)
-                return BadRequest("Invalid request payload.");
-
-            // Get user ID and role from token
-            var userIdClaim = User.FindFirst("userId") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-            var roleClaim = User.FindFirst(ClaimTypes.Role);
-
-            if (userIdClaim == null || roleClaim == null || roleClaim.Value != "Admin")
-                return Unauthorized("Only admins can approve requests.");
-
-            if (!int.TryParse(userIdClaim.Value, out int adminId))
-                return Unauthorized("Invalid admin ID.");
-
-            var success = await _UserRequestService.AcceptRequestAsync(request, adminId);
-            if (!success)
-                return BadRequest("Failed to approve the request.");
-
-            return Ok("Request approved.");
-        }
-
-        [Authorize]
-        [HttpPut("reject")]
-        public async Task<IActionResult> RejectRequest([FromBody] Request request)
-        {
-            if (request == null)
-                return BadRequest("Invalid request payload.");
+            if (dto == null || dto.Status is not ("Approved" or "Rejected"))
+                return BadRequest("Invalid request status.");
 
             var userIdClaim = User.FindFirst("userId") ?? User.FindFirst(ClaimTypes.NameIdentifier);
             var roleClaim = User.FindFirst(ClaimTypes.Role);
 
-            if (userIdClaim == null || roleClaim == null || roleClaim.Value != "Admin")
-                return Unauthorized("Only admins can reject requests.");
+            if (userIdClaim == null || roleClaim?.Value != "Admin")
+                return Unauthorized("Only admins can update requests.");
 
             if (!int.TryParse(userIdClaim.Value, out int adminId))
                 return Unauthorized("Invalid admin ID.");
 
-            var success = await _UserRequestService.RejectRequestAsync(request, adminId);
-            if (!success)
-                return BadRequest("Failed to reject the request.");
+            var request = await _UserRequestService.GetRequestByIdAsync(id);
+            if (request == null)
+                return NotFound("Request not found.");
 
-            return Ok("Request rejected.");
+            var success = dto.Status == "Approved"
+                ? await _UserRequestService.AcceptRequestAsync(request, adminId)
+                : await _UserRequestService.RejectRequestAsync(request, adminId);
+
+            if (!success)
+                return BadRequest($"Failed to update request status to {dto.Status}.");
+
+            return Ok($"Request {dto.Status.ToLower()}.");
         }
+
 
     }
+
 }

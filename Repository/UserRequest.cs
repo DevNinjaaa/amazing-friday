@@ -31,6 +31,7 @@ namespace CarShare.Repositories
 
         public async Task<bool> AddRequestAsync(Request request)
         {
+            Console.WriteLine("hi");
             var user = await _context.Users.FindAsync(request.UserId);
             if (user == null)
                 return false;
@@ -84,6 +85,13 @@ namespace CarShare.Repositories
             await _context.SaveChangesAsync();
 
             return true;
+        }
+        public Task<Request?> GetRequestByIdAsync(int requestId)
+        {
+            return _context.Requests
+                .Include(r => r.User)
+                .Include(r => r.CarPost)
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
         }
     }
 

@@ -22,10 +22,9 @@ namespace CarShare.Models
 
         [Required]
         public int OwnerId { get; set; }
-        [Required]
 
         [ForeignKey("OwnerId")]
-        public User? Owner { get; set; } = null!;
+        public User? Owner { get; set; }
 
         [Required]
         public required string Brand { get; set; }
@@ -40,7 +39,7 @@ namespace CarShare.Models
         public string? ImageUrl { get; set; }
         public int Year { get; set; }
         public double? Rating { get; set; }
-        public int Reviews { get; set; }
+        public int? Reviews { get; set; }
         public required double PricePerDay { get; set; }
         public string? Description { get; set; }
         public string? LicensePlate { get; set; }
@@ -50,7 +49,6 @@ namespace CarShare.Models
         [Required]
         public TransmissionType Transmission { get; set; }
         public required int Doors { get; set; }
-        public CarPost? CarPost { get; set; }
         public ICollection<Feedback>? Feedbacks { get; set; }
     }
 

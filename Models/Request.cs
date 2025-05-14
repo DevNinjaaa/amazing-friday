@@ -25,13 +25,13 @@ namespace CarShare.Models
         [ForeignKey("UserId")]
         public User? User { get; set; } = null!;
         public required RequestType RequestType;
-        public DateTime RequestedAt { get; set; }
-        [Required]
-        public int? CarPostId { get; set; } = null!;
+        public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
 
-        [ForeignKey("CarPost")]
+        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
+        public int? CarPostId { get; set; }
+
+        [ForeignKey("CarPostId")]
         public CarPost? CarPost { get; set; } = null!;
 
-        public ApprovalStatus ApprovalStatus { get; set; }
     }
 }

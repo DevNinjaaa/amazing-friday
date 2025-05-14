@@ -12,30 +12,28 @@ namespace CarShare.Models
         public required int CarId { get; set; }
 
         [ForeignKey("CarId")]
-        public Car? Car { get; set; } = null!;
+        public Car? Car { get; set; }
 
         [Required]
         public int OwnerId { get; set; }
 
         [ForeignKey("OwnerId")]
-        public User? Owner { get; set; } = null!;
+        public User? Owner { get; set; }
 
         [Required]
         public required string Title { get; set; }
 
         [Required]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         [Required]
         public int LocationId { get; set; }
 
         [ForeignKey("LocationId")]
-        public Location? Location { get; set; } = null!;
+        public Location? Location { get; set; }
 
         [Required]
         public RentalStatus RentalStatus { get; set; }
-        public decimal? RentalPrice { get; set; }
-
 
         [Required]
         public DateTime AvailableFrom { get; set; }

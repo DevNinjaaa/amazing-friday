@@ -19,29 +19,19 @@ namespace CarShare.Repositories
         .ToListAsync();
         }
 
-        public async Task<List<Car>> GetAllCarsByOwnerAsync(int ownerId)
-        {
-            return await _context.Cars
-                                 .Where(c => c.OwnerId == ownerId)
-                                 .ToListAsync();
-        }
 
-        public async Task<List<Car>> GetAvailableCarsAsync(string? carType, decimal? minPrice, decimal? maxPrice)
+
+        public async Task<List<CarPost>> GetAvailableCarsAsync()
         {
             return await _context.CarPosts
                 .Where(cp => cp.RentalStatus == RentalStatus.Available)
-                .Join(
-                    _context.Cars,
-                    post => post.CarId,
-                    car => car.CarId,
-                    (post, car) => car
-                )
-                .Where(car =>
-                    (string.IsNullOrEmpty(carType) || car.Category == carType) &&
-                    (!minPrice.HasValue || car.PricePerDay >= (double)minPrice.Value) &&
-                    (!maxPrice.HasValue || car.PricePerDay <= (double)maxPrice.Value)
-                )
                 .ToListAsync();
+        }
+        public async Task<List<Car>> GetCars()
+        {
+
+            var cars = await _context.Cars.ToListAsync();
+            return cars;
         }
 
 
@@ -92,29 +82,33 @@ namespace CarShare.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-
-        public async Task<bool> DeleteCarAsync(int carId)
+        public async Task<Car?> GetCarByIdAsync(int id)
         {
-            var car = await _context.Cars
-                                    .Include(c => c.CarPost)
-                                    .FirstOrDefaultAsync(c => c.CarId == carId);
-
-            if (car == null)
-                return false;
-
-            if (car.CarPost != null)
-            {
-                if (car.CarPost.RentalStatus == RentalStatus.Rented)
-                    return false;
-
-                _context.CarPosts.Remove(car.CarPost);
-            }
-
-            _context.Cars.Remove(car);
-            await _context.SaveChangesAsync();
-
-            return true;
+            return await _context.Cars.FindAsync(id);
         }
+
+        // public async Task<bool> DeleteCarAsync(int carId)
+        // {
+        //     var car = await _context.Cars
+        //                             .Include(c => c.CarPost)
+        //                             .FirstOrDefaultAsync(c => c.CarId == carId);
+
+        //     if (car == null)
+        //         return false;
+
+        //     if (car.CarPost != null)
+        //     {
+        //         if (car.CarPost.RentalStatus == RentalStatus.Rented)
+        //             return false;
+
+        //         _context.CarPosts.Remove(car.CarPost);
+        //     }
+
+        //     _context.Cars.Remove(car);
+        //     await _context.SaveChangesAsync();
+
+        //     return true;
+        // }
 
         public async Task<bool> CreateCarPostAsync(CarPost carPost)
         {
@@ -123,10 +117,10 @@ namespace CarShare.Repositories
                 return false;
 
             var car = await _context.Cars
-                .Include(c => c.CarPost)
+                .Where(c => c.CarId == carPost.CarId)
                 .FirstOrDefaultAsync(c => c.CarId == carPost.CarId && c.OwnerId == carPost.OwnerId);
 
-            if (car == null || car.CarPost != null)
+            if (car != null)
                 return false;
 
             _context.CarPosts.Add(carPost);
@@ -186,15 +180,6 @@ namespace CarShare.Repositories
 
             await _context.SaveChangesAsync();
             return true;
-        }
-
-
-        public async Task<List<CarPost>> ListCarPost(int ownerId)
-        {
-            return await _context.CarPosts
-                .Where(p => p.OwnerId == ownerId)
-                .Include(p => p.Car)
-                .ToListAsync();
         }
     }
 }

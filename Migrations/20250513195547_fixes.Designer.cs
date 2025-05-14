@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarShare.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250429130022_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250513195547_fixes")]
+    partial class fixes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,27 +24,6 @@ namespace CarShare.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CarShare.Models.AccountApprovalRequest", b =>
-                {
-                    b.Property<int>("AccountApprovalRequestId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AccountApprovalRequestId"));
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("AccountApprovalRequestId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AccountApprovalRequests");
-                });
 
             modelBuilder.Entity("CarShare.Models.Car", b =>
                 {
@@ -61,18 +40,45 @@ namespace CarShare.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("CarType")
+                    b.Property<string>("Category")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Doors")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FuelType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsRented")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LicensePlate")
+                        .HasColumnType("text");
 
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("PricePerDay")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Rating")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Reviews")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Seats")
                         .HasColumnType("integer");
 
                     b.Property<int>("Transmission")
@@ -96,6 +102,9 @@ namespace CarShare.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CarPostId"));
 
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("AvailableFrom")
                         .HasColumnType("timestamp with time zone");
 
@@ -115,8 +124,8 @@ namespace CarShare.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("RentalPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<decimal?>("RentalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("RentalStatus")
                         .HasColumnType("integer");
@@ -194,7 +203,7 @@ namespace CarShare.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Rating")
+                    b.Property<int>("Rate")
                         .HasColumnType("integer");
 
                     b.Property<int>("RenterId")
@@ -237,18 +246,18 @@ namespace CarShare.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("CarShare.Models.PostApprovalRequest", b =>
+            modelBuilder.Entity("CarShare.Models.Request", b =>
                 {
-                    b.Property<int>("PostApprovalRequestId")
+                    b.Property<int>("RequestId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostApprovalRequestId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RequestId"));
 
-                    b.Property<int>("CarPostId")
+                    b.Property<int>("ApprovalStatus")
                         .HasColumnType("integer");
 
-                    b.Property<int>("IsApproved")
+                    b.Property<int>("CarPostId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("RequestedAt")
@@ -257,13 +266,13 @@ namespace CarShare.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("PostApprovalRequestId");
+                    b.HasKey("RequestId");
 
                     b.HasIndex("CarPostId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostApprovalRequest");
+                    b.ToTable("Requests");
                 });
 
             modelBuilder.Entity("CarShare.Models.User", b =>
@@ -274,22 +283,19 @@ namespace CarShare.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
-                    b.Property<int?>("CarOwnerApprovalStatus")
-                        .HasColumnType("integer");
+                    b.Property<bool>("CarOwner")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCarOwner")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsRenter")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("Renting")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
@@ -301,17 +307,6 @@ namespace CarShare.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("CarShare.Models.AccountApprovalRequest", b =>
-                {
-                    b.HasOne("CarShare.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CarShare.Models.Car", b =>
@@ -382,13 +377,13 @@ namespace CarShare.Migrations
             modelBuilder.Entity("CarShare.Models.Feedback", b =>
                 {
                     b.HasOne("CarShare.Models.Car", "Car")
-                        .WithMany()
+                        .WithMany("Feedbacks")
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CarShare.Models.User", "Renter")
-                        .WithMany("Feedbacks")
+                        .WithMany()
                         .HasForeignKey("RenterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -398,7 +393,7 @@ namespace CarShare.Migrations
                     b.Navigation("Renter");
                 });
 
-            modelBuilder.Entity("CarShare.Models.PostApprovalRequest", b =>
+            modelBuilder.Entity("CarShare.Models.Request", b =>
                 {
                     b.HasOne("CarShare.Models.CarPost", "CarPost")
                         .WithMany()
@@ -420,6 +415,8 @@ namespace CarShare.Migrations
             modelBuilder.Entity("CarShare.Models.Car", b =>
                 {
                     b.Navigation("CarPost");
+
+                    b.Navigation("Feedbacks");
                 });
 
             modelBuilder.Entity("CarShare.Models.User", b =>
@@ -427,8 +424,6 @@ namespace CarShare.Migrations
                     b.Navigation("Car");
 
                     b.Navigation("CarPosts");
-
-                    b.Navigation("Feedbacks");
 
                     b.Navigation("Proposals");
                 });

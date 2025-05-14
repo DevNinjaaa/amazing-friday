@@ -8,7 +8,7 @@ namespace CarShare.DTOs
 
         public DateTime RequestedAt { get; set; }
 
-        public int? CarPostId { get; set; }
+        public int? CarPostId { get; set; } = null!;
 
     }
 }

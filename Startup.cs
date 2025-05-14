@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using CarShare.Hubs;
+using System.Text.Json.Serialization;
 
 
 public class Startup
@@ -22,7 +23,13 @@ public class Startup
     // Register services here
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
+
+        services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+
         services.AddEndpointsApiExplorer();
         services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));

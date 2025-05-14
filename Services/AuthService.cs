@@ -6,6 +6,7 @@ using CarShare.Models;
 using CarShare.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
 
 namespace CarShare.Services
 {
@@ -20,9 +21,8 @@ namespace CarShare.Services
             _configuration = configuration;
         }
 
-        public async Task<string> RegisterAsync(RegisterRequest registerRequest)
+        public async Task<LoginResponse> RegisterAsync(RegisterRequest registerRequest)
         {
-            // check if username already exists
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == registerRequest.Username);
             if (existingUser != null)
@@ -30,7 +30,6 @@ namespace CarShare.Services
                 throw new Exception("Username already exists.");
             }
 
-            // check if email already exists
             var existingEmail = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == registerRequest.Email);
             if (existingEmail != null)
@@ -54,18 +53,26 @@ namespace CarShare.Services
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            return GenerateJwtToken(user);
+            var token = GenerateJwtToken(user);
+            return new LoginResponse
+            {
+                Token = token,
+                UserId = user.UserId,
+                UserName = user.Username,
+                Role = user.Role,
+                CarOwner = user.CarOwner,
+                Renting = user.Renting
+            };
+
         }
 
-        // Generate a JWT token
         private string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
         new Claim(JwtRegisteredClaimNames.Sub, user.Username),
         new Claim(ClaimTypes.Role, user.Role.ToString()),
-        new Claim("UserId", user.UserId.ToString()),
-        new Claim("CarOwner", user.CarOwner.ToString()),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
 
@@ -82,13 +89,12 @@ namespace CarShare.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+
         }
 
 
-        // log in a user and return a JWT token
-        public async Task<string> LoginAsync(LoginRequest loginRequest)
+        public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
-            // find user by email
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
 
@@ -96,8 +102,24 @@ namespace CarShare.Services
             {
                 throw new Exception("Invalid login attempt.");
             }
+            var token = GenerateJwtToken(user);
+            return new LoginResponse
+            {
+                Token = token,
+                UserId = user.UserId,
+                UserName = user.Username,
+                Role = user.Role,
+                CarOwner = user.CarOwner,
+                Renting = user.Renting
+            };
+        }
+        public async Task<string> RefreshTokenAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) throw new Exception("User not found");
 
             return GenerateJwtToken(user);
         }
+
     }
 }

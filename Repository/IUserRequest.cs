@@ -10,5 +10,6 @@ namespace CarShare.Repositories
         Task<bool> AddRequestAsync(Request request);
         Task<bool> AcceptRequestAsync(Request request, int AdminId);
         Task<bool> RejectRequestAsync(Request request, int AdminId);
+        Task<Request?> GetRequestByIdAsync(int requestId);
     }
 }

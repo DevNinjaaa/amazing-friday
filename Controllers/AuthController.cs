@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CarShare.Models.DTOs;
 using System.Security.Claims;
-
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CarShare.Services
 {
@@ -20,10 +20,10 @@ namespace CarShare.Services
             _authService = authService;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
-
             if (registerRequest == null || string.IsNullOrEmpty(registerRequest.Email) ||
                 string.IsNullOrEmpty(registerRequest.Password) ||
                 registerRequest.Password != registerRequest.ConfirmPassword)
@@ -33,9 +33,8 @@ namespace CarShare.Services
 
             try
             {
-                // Call the service to register the user
-                var token = await _authService.RegisterAsync(registerRequest);
-                return Ok(new { Token = token });
+                var response = await _authService.RegisterAsync(registerRequest);
+                return Ok(new { response = response });
             }
             catch (Exception ex)
             {
@@ -43,37 +42,40 @@ namespace CarShare.Services
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             try
             {
-                Console.WriteLine($"Login request received: Email = {loginRequest.Email}, Password = {loginRequest.Password}");
-                var token = await _authService.LoginAsync(loginRequest);
-                return Ok(new { Token = token });
+                var response = await _authService.LoginAsync(loginRequest);
+                return Ok(new { response = response });
             }
             catch (Exception ex)
             {
                 return Unauthorized(new { Message = ex.Message });
             }
         }
-        [Authorize]
+
         [HttpGet("user-info")]
         public IActionResult GetUserInfo()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var username = User.FindFirst(ClaimTypes.Name)?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var userId = User.FindFirst("UserId")?.Value;
+            var username = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
             if (userId == null)
             {
                 return Unauthorized(new { Message = "User not authenticated" });
             }
 
-            // Return user information
-            return Ok(new { UserId = userId, Username = username, Email = email });
+            return Ok(new
+            {
+                UserId = userId,
+                Username = username,
+                Role = role,
+
+            });
         }
     }
-
 }

@@ -5,8 +5,9 @@ namespace CarShare.Services
 {
     public interface IAuthService
     {
-        Task<string> RegisterAsync(RegisterRequest registerRequest);
-        Task<string> LoginAsync(LoginRequest loginRequest);
+        Task<LoginResponse> RegisterAsync(RegisterRequest registerRequest);
+        Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
+        Task<string> RefreshTokenAsync(int userId);
 
     }
 }

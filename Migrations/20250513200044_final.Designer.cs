@@ -3,6 +3,7 @@ using System;
 using CarShare.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarShare.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513200044_final")]
+    partial class final
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,7 +75,7 @@ namespace CarShare.Migrations
                     b.Property<double?>("Rating")
                         .HasColumnType("double precision");
 
-                    b.Property<int?>("Reviews")
+                    b.Property<int>("Reviews")
                         .HasColumnType("integer");
 
                     b.Property<int>("Seats")
@@ -121,6 +124,9 @@ namespace CarShare.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal?>("RentalPrice")
+                        .HasColumnType("numeric");
+
                     b.Property<int>("RentalStatus")
                         .HasColumnType("integer");
 
@@ -130,7 +136,8 @@ namespace CarShare.Migrations
 
                     b.HasKey("CarPostId");
 
-                    b.HasIndex("CarId");
+                    b.HasIndex("CarId")
+                        .IsUnique();
 
                     b.HasIndex("LocationId");
 
@@ -316,8 +323,8 @@ namespace CarShare.Migrations
             modelBuilder.Entity("CarShare.Models.CarPost", b =>
                 {
                     b.HasOne("CarShare.Models.Car", "Car")
-                        .WithMany()
-                        .HasForeignKey("CarId")
+                        .WithOne("CarPost")
+                        .HasForeignKey("CarShare.Models.CarPost", "CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -405,6 +412,8 @@ namespace CarShare.Migrations
 
             modelBuilder.Entity("CarShare.Models.Car", b =>
                 {
+                    b.Navigation("CarPost");
+
                     b.Navigation("Feedbacks");
                 });
 

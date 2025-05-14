@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarShare.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,33 +37,12 @@ namespace CarShare.Migrations
                     Email = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
-                    IsCarOwner = table.Column<bool>(type: "boolean", nullable: false),
-                    IsRenter = table.Column<bool>(type: "boolean", nullable: false),
-                    CarOwnerApprovalStatus = table.Column<int>(type: "integer", nullable: true)
+                    CarOwner = table.Column<bool>(type: "boolean", nullable: false),
+                    Renting = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AccountApprovalRequests",
-                columns: table => new
-                {
-                    AccountApprovalRequestId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    RequestedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccountApprovalRequests", x => x.AccountApprovalRequestId);
-                    table.ForeignKey(
-                        name: "FK_AccountApprovalRequests_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,10 +55,19 @@ namespace CarShare.Migrations
                     Brand = table.Column<string>(type: "text", nullable: false),
                     Model = table.Column<string>(type: "text", nullable: false),
                     IsRented = table.Column<bool>(type: "boolean", nullable: false),
-                    CarType = table.Column<string>(type: "text", nullable: false),
+                    Category = table.Column<string>(type: "text", nullable: false),
                     AvailableAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true),
                     Year = table.Column<int>(type: "integer", nullable: false),
-                    Transmission = table.Column<int>(type: "integer", nullable: false)
+                    Rating = table.Column<double>(type: "double precision", nullable: true),
+                    Reviews = table.Column<int>(type: "integer", nullable: false),
+                    PricePerDay = table.Column<double>(type: "double precision", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    LicensePlate = table.Column<string>(type: "text", nullable: true),
+                    Seats = table.Column<int>(type: "integer", nullable: false),
+                    FuelType = table.Column<string>(type: "text", nullable: true),
+                    Transmission = table.Column<int>(type: "integer", nullable: false),
+                    Doors = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -104,9 +92,10 @@ namespace CarShare.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     LocationId = table.Column<int>(type: "integer", nullable: false),
                     RentalStatus = table.Column<int>(type: "integer", nullable: false),
+                    RentalPrice = table.Column<decimal>(type: "numeric", nullable: true),
                     AvailableFrom = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AvailableTo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RentalPrice = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
+                    ApprovalStatus = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,7 +129,7 @@ namespace CarShare.Migrations
                     CarId = table.Column<int>(type: "integer", nullable: false),
                     RenterId = table.Column<int>(type: "integer", nullable: false),
                     Comment = table.Column<string>(type: "text", nullable: true),
-                    Rating = table.Column<int>(type: "integer", nullable: false),
+                    Rate = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -198,37 +187,32 @@ namespace CarShare.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostApprovalRequest",
+                name: "Requests",
                 columns: table => new
                 {
-                    PostApprovalRequestId = table.Column<int>(type: "integer", nullable: false)
+                    RequestId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false),
-                    CarPostId = table.Column<int>(type: "integer", nullable: false),
                     RequestedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsApproved = table.Column<int>(type: "integer", nullable: false)
+                    CarPostId = table.Column<int>(type: "integer", nullable: false),
+                    ApprovalStatus = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostApprovalRequest", x => x.PostApprovalRequestId);
+                    table.PrimaryKey("PK_Requests", x => x.RequestId);
                     table.ForeignKey(
-                        name: "FK_PostApprovalRequest_CarPosts_CarPostId",
+                        name: "FK_Requests_CarPosts_CarPostId",
                         column: x => x.CarPostId,
                         principalTable: "CarPosts",
                         principalColumn: "CarPostId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PostApprovalRequest_Users_UserId",
+                        name: "FK_Requests_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AccountApprovalRequests_UserId",
-                table: "AccountApprovalRequests",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Car_OwnerId",
@@ -277,13 +261,13 @@ namespace CarShare.Migrations
                 column: "RenterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PostApprovalRequest_CarPostId",
-                table: "PostApprovalRequest",
+                name: "IX_Requests_CarPostId",
+                table: "Requests",
                 column: "CarPostId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PostApprovalRequest_UserId",
-                table: "PostApprovalRequest",
+                name: "IX_Requests_UserId",
+                table: "Requests",
                 column: "UserId");
         }
 
@@ -291,16 +275,13 @@ namespace CarShare.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AccountApprovalRequests");
-
-            migrationBuilder.DropTable(
                 name: "CarProposals");
 
             migrationBuilder.DropTable(
                 name: "Feedbacks");
 
             migrationBuilder.DropTable(
-                name: "PostApprovalRequest");
+                name: "Requests");
 
             migrationBuilder.DropTable(
                 name: "CarPosts");
