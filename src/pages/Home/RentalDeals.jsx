@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import carimge from "../../assets/images/car-placeholder.jpg";
 
 const RentalDeals = () => {
   const [cars, setCars] = useState([]);
@@ -9,12 +10,14 @@ const RentalDeals = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await fetch("http://localhost:5112/api/car");
+        const response = await fetch("http://localhost:5112/api/car/available_cars");
         const data = await response.json();
-        setCars(data.slice(0, 4)); // Get first 4 cars
-        setLoading(false);
+        console.log(data);
+
+        setCars(data.slice(0, 4));
       } catch (error) {
         console.error("Error fetching cars:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -34,45 +37,44 @@ const RentalDeals = () => {
   );
 
   const CarCard = ({
-    _id,
-    make,
+    id,
+    brand,
     model,
     year,
-    price,
+    pricePerDay,
     transmission,
     seats,
     fuelType,
     category,
     location,
-    image,
   }) => (
     <article className="overflow-hidden w-64 bg-white rounded-2xl transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl cursor-pointer">
       <img
-        src={image}
+        src={carimge}
         className="object-cover w-full h-auto"
-        alt={`${make} ${model}`}
+        alt={`${brand} ${model}`}
       />
       <div className="p-6">
         <div className="mb-4">
           <h3 className="mb-3 text-base text-neutral-800 font-semibold font-inter">
-            {year} {make} {model}
+            {year} {brand} {model}
           </h3>
           <p className="text-xs text-zinc-500 font-medium">
-            {category} - {fuelType}
+            {category || "Uncategorized"} - {fuelType}
           </p>
         </div>
         <div className="flex flex-wrap gap-2 mb-6">
           <IconText icon="users" text={`${seats} Seats`} />
           <IconText icon="steering-wheel" text={transmission} />
-          <IconText icon="map-pin" text={location} />
+          <IconText icon="map-pin" text={location || "Unknown"} />
         </div>
         <div className="flex justify-between items-center px-0 py-6 border-t border-solid border-t-neutral-200">
           <span className="font-medium text-neutral-600">Price</span>
           <span className="text-base font-bold text-zinc-800 font-inter">
-            Rs {price} /day
+            Rs {pricePerDay} /day
           </span>
         </div>
-        <Link to={`/cars/${_id}`}>
+        <Link to={`/cars/${id}`}>
           <button className="flex gap-2 justify-center items-center p-2 w-full text-sm font-semibold text-white rounded-lg cursor-pointer bg-blue-950 border-[none] transition-all hover:bg-blue-900">
             <span>Rent Now</span>
             <i className="ti ti-arrow-right" />
@@ -95,7 +97,19 @@ const RentalDeals = () => {
 
       <div className="flex gap-8 justify-center mt-16 ml-0 max-md:flex-col max-md:items-center">
         {cars.map((car, index) => (
-          <CarCard key={index} {...car} />
+          <CarCard
+            key={index}
+            id={car.carId}
+            brand={car.brand}
+            model={car.model}
+            year={car.year}
+            pricePerDay={car.pricePerDay}
+            transmission={car.transmission}
+            seats={car.seats}
+            fuelType={car.fuelType}
+            category={car.category}
+            location={car.location}
+          />
         ))}
       </div>
 

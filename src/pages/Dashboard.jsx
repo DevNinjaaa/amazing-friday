@@ -35,9 +35,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Get user data from localStorage
-    const token = localStorage.getItem('token');
+
+    const token = localStorage.getItem("token")
+
     let storedUser = "";
-    if(token)
+    if (token)
       storedUser = JSON.parse(getUesrInfo(token));
 
     if (storedUser) {
@@ -167,11 +169,10 @@ const Dashboard = () => {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="flex border-b">
             <button
-              className={`flex items-center px-6 py-4 text-lg font-medium transition-colors duration-200 ${
-                activeTab === "profile"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`flex items-center px-6 py-4 text-lg font-medium transition-colors duration-200 ${activeTab === "profile"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
               style={{
                 color:
                   activeTab === "profile" ? colors.primary : colors.lightText,
@@ -184,11 +185,10 @@ const Dashboard = () => {
               Profile
             </button>
             <button
-              className={`flex items-center px-6 py-4 text-lg font-medium transition-colors duration-200 ${
-                activeTab === "bookings"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`flex items-center px-6 py-4 text-lg font-medium transition-colors duration-200 ${activeTab === "bookings"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
               style={{
                 color:
                   activeTab === "bookings" ? colors.primary : colors.lightText,
@@ -201,11 +201,10 @@ const Dashboard = () => {
               Bookings
             </button>
             <button
-              className={`flex items-center px-6 py-4 text-lg font-medium transition-colors duration-200 ${
-                activeTab === "listings"
-                  ? "text-primary border-b-2 border-primary"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`flex items-center px-6 py-4 text-lg font-medium transition-colors duration-200 ${activeTab === "listings"
+                ? "text-primary border-b-2 border-primary"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
               style={{
                 color: activeTab === "listings" ? colors.primary : colors.lightText,
                 borderBottomColor:
@@ -441,7 +440,7 @@ const Dashboard = () => {
                           className="py-3 px-4 font-medium"
                           style={{ color: colors.text }}
                         >
-                          Car 
+                          Car
                         </th>
                         <th
                           className="py-3 px-4 font-medium"
@@ -459,7 +458,7 @@ const Dashboard = () => {
                           className="py-3 px-4 font-medium"
                           style={{ color: colors.text }}
                         >
-                          Contact 
+                          Contact
                         </th>
                         <th
                           className="py-3 px-4 font-medium"
@@ -496,11 +495,10 @@ const Dashboard = () => {
                           </td>
                           <td className="py-4 px-4">
                             <span
-                              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                booking.status === "Active"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${booking.status === "Active"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                                }`}
                             >
                               {booking.status}
                             </span>

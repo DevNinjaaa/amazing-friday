@@ -5,7 +5,7 @@ import { FaUserCircle } from "react-icons/fa";
 import AuthModal from "../components/AuthModal.jsx";
 import logo from "../assets/images/image.png";
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
-import "primereact/resources/themes/lara-light-indigo/theme.css"; // or your theme
+import "primereact/resources/themes/lara-light-indigo/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import axios from "axios";
@@ -17,25 +17,30 @@ const NavBar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("token");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-        localStorage.removeItem("token");
-      }
+    // Check token and user info on component mount
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const userId = localStorage.getItem("userId");
+
+    if (token && role && userId) {
+      // You can store user info as object or string depending on your app design
+      setUser({ role, userId });
+    } else {
+      setUser(null);
     }
   }, []);
 
   const handleLogout = () => {
+    // Clear all relevant localStorage items on logout
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("carOwner");
     setUser(null);
     setDropdownOpen(false);
     navigate("/");
   };
 
-  // Handle "Post your Car" click with confirmation popup
   const handlePostCarClick = (event) => {
     confirmPopup({
       target: event.currentTarget,
@@ -44,17 +49,17 @@ const NavBar = () => {
       accept: async () => {
         try {
           const token = localStorage.getItem("token");
-          const carOwner = localStorage.getItem("carOwner")
+          const carOwner = localStorage.getItem("carOwner");
 
           if (!token) {
-            console.error("No token found");
+            alert("You need to be logged in to post a car.");
             return;
           }
-          if (carOwner == true) {
-            navigate('./carPost');
+
+          if (carOwner === "true") {
+            navigate("/carPost");
             return;
           }
-          const currentDate = new Date().toISOString();
 
           const requestBody = {
             requestType: "PlatformPoster",
@@ -72,9 +77,13 @@ const NavBar = () => {
             }
           );
 
-          console.log("Request submitted successfully", response.data);
+          alert("Request sent to become a car owner. Await admin approval.");
         } catch (error) {
-          console.error("Error sending request:", error.response?.data || error.message);
+          console.error(
+            "Error sending request:",
+            error.response?.data || error.message
+          );
+          alert("Failed to send request. Please try again.");
         }
       },
       reject: () => console.log("Post canceled"),
@@ -90,7 +99,7 @@ const NavBar = () => {
 
   return (
     <header className="flex justify-between items-center px-60 py-5 bg-slate-950 max-md:p-10 max-sm:p-5">
-      <ConfirmPopup /> {/* 👈 Required for the popup to render */}
+      <ConfirmPopup />
 
       {/* Logo */}
       <a href="/" aria-label="Go to homepage">
@@ -103,7 +112,7 @@ const NavBar = () => {
 
       {/* Navigation Menu */}
       <nav className="flex gap-10 max-sm:hidden">
-        {user && (
+        {user?.role !== "Admin" && (
           <a
             key="post-request"
             onClick={handlePostCarClick}
@@ -128,7 +137,6 @@ const NavBar = () => {
 
       {/* User Actions */}
       <div className="relative flex items-center">
-        {user ? console.log("user is in") : console.log("user is out")}
         {user ? (
           <div className="relative">
             <button
@@ -174,7 +182,7 @@ const NavBar = () => {
       <AuthModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        setUser={setUser}
+        setUser={setUser} // This should update NavBar state on successful login
       />
     </header>
   );

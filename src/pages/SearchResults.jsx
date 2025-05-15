@@ -16,6 +16,13 @@ function SearchResults() {
   const returnDate = queryParams.get("returnDate");
 
   useEffect(() => {
+
+    token = localStorage.getItem("token")
+    userId = localStorage.getItem("userId")
+    userName = localStorage.getItem("userName")
+    role = localStorage.getItem("role")
+    carOwner = localStorage.getItem("carOwner")
+    renting = localStorage.getItem("renting")
     const fetchCars = async () => {
       setLoading(true);
       try {

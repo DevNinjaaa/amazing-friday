@@ -6,21 +6,23 @@ const ListCar = () => {
     brand: "",
     model: "",
     year: "",
-    price: "",
+    pricePerDay: "",
     transmission: "Automatic",
     seats: 5,
     fuelType: "Gasoline",
-    image: '../assets/images/carplaceholder.jpg',
+    imageUrl: "", // Changed from relative path to string field
     category: "Standard",
     description: "",
-    location: "",
+    location: "Thrissur",
     phone: "+20 123-456-781-9",
     licensePlate: "",
   });
+
   const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -32,83 +34,70 @@ const ListCar = () => {
         return;
       }
 
-      // const response = await axios.post(
-      //   "http://localhost:5112/api/car",
-      //   formData,
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
+      const response = await axios.post(
+        "http://localhost:5112/api/car",
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      setMessage("Car listed successfully!");
+      setMessage("✅ Car listed successfully!");
       setFormData({
         brand: "",
         model: "",
         year: "",
-        price: "",
+        pricePerDay: "",
         transmission: "Automatic",
         seats: 5,
         fuelType: "Gasoline",
-        image: "",
+        imageUrl: "",
         category: "Standard",
         description: "",
-        location: "Helwan",
-        phone: "",
+        location: "Thrissur",
+        phone: "+20 123-456-781-9",
         licensePlate: "",
       });
     } catch (error) {
       console.error("Error listing car:", error.response?.data);
-      setMessage(error.response?.data?.error || "Failed to list the car.");
+      setMessage(error.response?.data?.error || " Failed to list the car.");
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4">List Your Car for Rent</h2>
-      {message && <p className="text-center text-green-500">{message}</p>}
+      {message && (
+        <p
+          className={`text-center mb-4 ${message.startsWith("✅") ? "text-green-600" : "text-red-500"
+            }`}
+        >
+          {message}
+        </p>
+      )}
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-700">Brand</label>
-          <input
-            type="text"
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Model</label>
-          <input
-            type="text"
-            name="model"
-            value={formData.model}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Year</label>
-          <input
-            type="number"
-            name="year"
-            value={formData.year}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Price (per day)</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
+        {[
+          { label: "Brand", name: "brand", type: "text" },
+          { label: "Model", name: "model", type: "text" },
+          { label: "Year", name: "year", type: "number" },
+          { label: "Price (per day)", name: "pricePerDay", type: "number" },
+          { label: "Phone number", name: "phone", type: "text" },
+          { label: "License Plate", name: "licensePlate", type: "text" },
+          { label: "Image URL", name: "imageUrl", type: "text" },
+        ].map(({ label, name, type }) => (
+          <div className="mb-4" key={name}>
+            <label className="block text-gray-700">{label}</label>
+            <input
+              type={type}
+              name={name}
+              value={formData[name]}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+        ))}
+
         <div className="mb-4">
           <label className="block text-gray-700">Location</label>
           <select
@@ -123,38 +112,63 @@ const ListCar = () => {
             <option value="Chalakudy">Chalakudy</option>
           </select>
         </div>
+
         <div className="mb-4">
-          <label className="block text-gray-700">Phone number</label>
-          <input
-            type="text"
-            name="phone"
-            value={formData.phone}
+          <label className="block text-gray-700">Transmission</label>
+          <select
+            name="transmission"
+            value={formData.transmission}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            required
-          />
+          >
+            <option value="Automatic">Automatic</option>
+            <option value="Manual">Manual</option>
+          </select>
         </div>
+
         <div className="mb-4">
-          <label className="block text-gray-700">license</label>
-          <input
-            type="text"
-            name="licensePlate"
-            value={formData.licensePlate}
+          <label className="block text-gray-700">Fuel Type</label>
+          <select
+            name="fuelType"
+            value={formData.fuelType}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            required
-          />
+          >
+            <option value="Gasoline">Gasoline</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Electric">Electric</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
         </div>
+
         <div className="mb-4">
-          <label className="block text-gray-700">Image URL</label>
-          <input
-            type="text"
-            name="image"
-            value={formData.image}
+          <label className="block text-gray-700">Category</label>
+          <select
+            name="category"
+            value={formData.category}
             onChange={handleChange}
             className="w-full p-2 border rounded"
+          >
+            <option value="Standard">Standard</option>
+            <option value="SUV">SUV</option>
+            <option value="Luxury">Luxury</option>
+            <option value="Mini">Mini</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700">Seats</label>
+          <input
+            type="number"
+            name="seats"
+            value={formData.seats}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            min={1}
+            max={9}
           />
         </div>
+
         <div className="mb-4">
           <label className="block text-gray-700">Description</label>
           <textarea
@@ -163,11 +177,12 @@ const ListCar = () => {
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows="3"
-          ></textarea>
+          />
         </div>
+
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded w-full font-semibold"
         >
           List Car
         </button>
